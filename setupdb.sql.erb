@@ -1,0 +1,4 @@
+DROP DATABASE IF EXISTS <%= @params[:db_name] %>;
+CREATE DATABASE <%= @params[:db_name] %>;
+USE <%= @params[:db_name] %>;
+SOURCE /vagrant/<%= @params[:wp_expand_dir] %>/<%= @params[:wp_backup_sql] %>

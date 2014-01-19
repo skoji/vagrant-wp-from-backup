@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+echo "Installing apache, php, mysql and other stuff ..."
+
+apt-get update >/dev/null 2>&1
+
+echo mysql-server-5.5 mysql-server/root_password password <%= @params[:db_password] %> | debconf-set-selections
+echo mysql-server-5.5 mysql-server/root_password_again password <%= @params[:db_password] %> | debconf-set-selections
+
+apt-get install -y apache2 php5 mysql-server php5-mysql vim unzip git >/dev/null 2>&1
+
+rm -rf /var/www
+ln -fs /vagrant /var/www
+
+# phpMyAdmin
+echo "Installing phpMyAdmin"
+cd /vagrant
+if [ ! -d phpmyadmin ]; then
+    wget http://downloads.sourceforge.net/project/phpmyadmin/phpMyAdmin/4.0.5/phpMyAdmin-4.0.5-all-languages.zip >/dev/null 2>&1
+    unzip phpMyAdmin-4.0.5-all-languages.zip >/dev/null 2>&1
+    mv phpMyAdmin-4.0.5-all-languages phpmyadmin
+fi
+
+# MySQL
+mysql -u root -p<%= @params[:db_password] %> < setupdb.sql
+if [ ! -d Search-Replace-DB ]; then
+    git clone https://github.com/interconnectit/Search-Replace-DB
+    cd Search-Replace-DB
+else
+    cd Search-Replace-DB
+    git pull
+fi
+php srdb.cli.php -h localhost -n wp -u root -p <%= @params[:db_password] %> -s <%= @params[:original_url] %> -r http://localhost:<%= @params[:local_port] %>
+cd ..
+
+
+# Configure apache
+service apache2 stop
+mv /etc/apache2/envvars /etc/apache2/envvars.org
+sed 's/www-data/vagrant/g' < /etc/apache2/envvars.org  > /etc/apache2/envvars
+mv /etc/apache2/ports.conf /etc/apache2/ports.conf.org
+sed 's/NameVirtualHost \*:80/NameVirtualHost \*:<%= @params[:local_port] %>/g' < /etc/apache2/ports.conf.org | sed 's/Listen 80/Listen <%= @params[:local_port] %>/g' > /etc/apache2/ports.conf
+mv /etc/apache2/sites-enabled/000-default /etc/apache2/sites-enabled/000-default.org
+sed 's/AllowOverride None/AllowOverride all/g' < /etc/apache2/sites-enabled/000-default.org | sed 's/VirtualHost \*:80/VirtualHost \*:<%= @params[:local_port] %>/g' >/etc/apache2/sites-enabled/000-default
+a2enmod rewrite
+rm -rf /var/lock/apache2
+service apache2 start
+
+
+
