@@ -6,7 +6,7 @@ Create local Vagrant VM to deploy Wordpress from backWPup backup.
 
 * MacOS X (using keychain in get-backup.rb)
 * Vagrant and VirtualBox, and Ruby 1.9 or above.
-* backup of working wordpress by backWPup.
+* tar.gz backup of working wordpress by backWPup.
 
 ## Usage
 
@@ -24,9 +24,9 @@ If you're lucky, you can see the copy of the wordpress site on http://localhost:
 ## PROBLEMS
 
 * Depends on keychain
-* Depends on backWPup to folder (i.e. you can not use backup to Dropbox or S3)
+* Depends on backWPup tar.gz to folder (i.e. you can not use backup to Dropbox or S3)
 
-If you want to run on Linux,  or if you want to use backup file on Dropbox or S3, you should modify get-backup.rb.
+If you want to run on Linux, or if you want to use backup file on Dropbox or S3, you should modify get-backup.rb.
 
 
 
