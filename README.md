@@ -1,6 +1,6 @@
 # Vagrant-wp-from-backup
 
-Create local Vagrant VM to deploy Wordpress from backWPup backup.
+Create local Vagrant VM and install Wordpress from [http://wordpress.org/plugins/backwpup/](backWPup) backup.
 
 ## Requirements
 
