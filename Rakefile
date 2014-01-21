@@ -1,6 +1,14 @@
 require 'erb'
 load 'parameters.rb'
 
+def render_erb(dest, src = nil)
+  src ||= "#{dest}.erb"
+  File.open(dest, 'w+') do
+    |file|
+    file.write ERB.new(File.read(src)).result
+  end
+end
+
 task :default => :up_vm
 desc 'up virtual machine'
 task :up_vm => [@params[:wp_expand_dir], 'provision.sh', 'setupdb.sql', 'index.php'] do
@@ -12,24 +20,15 @@ file @params[:wp_expand_dir] => ['parameters.rb'] do
 end
 
 file 'provision.sh' => ['parameters.rb', 'provision.sh.erb'] do |t|
-  File.open(t.name, 'w+') do
-    |file|
-    file.write ERB.new(File.read('provision.sh.erb')).result
-  end
+  render_erb(t.name)    
 end
 
 file 'setupdb.sql' => ['parameters.rb', 'setupdb.sql.erb'] do |t|
-  File.open(t.name, 'w+') do
-    |file|
-    file.write ERB.new(File.read('setupdb.sql.erb')).result
-  end
+  render_erb(t.name)    
 end
 
 file 'index.php' => ['parameters.rb', 'index.php.erb'] do |t|
-  File.open(t.name, 'w+') do
-    |file|
-    file.write ERB.new(File.read('index.php.erb')).result
-  end
+  render_erb(t.name)    
 end
 
 desc 'clean and get new backup'
